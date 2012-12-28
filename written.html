@@ -1,0 +1,97 @@
+<!doctype html>
+<html><head>
+		<meta charset="utf-8">		
+		<style>
+			@import url("css/written.css");
+			@import url("css/demo.css");
+		</style>
+		<meta charset="utf-8">	
+		<title>Written Evalutation</title>
+	</head>
+	<body>
+		<div class="wrapper">
+		<h1>Written Evaluation - Backbone.js</h1>
+		<h2>Introduction</h2>
+		<h3>Overview</h3>
+		<p>
+			Web apps can be simply built on javaScript and jQuery. However as the the application size grows it generally produces spaghetti code and becomes difficult to manage such application.
+			Backbone.js is  an open source JavaScript Framework/API that solves this problem. It is very lightweight, at only 5.6kb when gzipped and packed. Backbone utilizes MVC (more below) and operates by sending “change” events to the View when the Model or the Collection changes, and the View handles the change event accordingly.
+		</p>
+		<h3>MVC,MVP, and MV*</h3>
+		<p>
+			MVC (Model View Controller) is an architectural design pattern to organize code. Put simply, Models are used to represent data, views are the user interface of an application, and controllers handles the input. Backbone roughly follows this pattern with Backbone.Model, Backbone.View, and Backbone.Router. However, you may notice that the controller is missing, thats because in Backbone, the job of the controller is roughly spread among Backbone.Router and Backbone.View. MVP stand for Model View Presenter, and is a variation of MVC, some argue that Backbone fits in this category better. MV* is a general category of Models Views and something else, a lot of JavaScript frameworks are in this category; Backbone fits this description the best.
+		</p>
+		<h3>When should backbone be used?</h3>
+		<p>
+			Backbone is mainly used for single page applications (SPAs). SPAs are web applications with a single web page (duh), they operate by downloading all the HTML, CSS and JavaScripts needed for common tasks and then modifying partial pages in the background as user performs actions on the web page (some actions may contact server). This process usually involves a lot of JavaScript and thats where Backbone comes in to organize the structure of the app. If the targeted web application is very simple, or is mainly involves server processing, using Backbone would be overkill.
+		</p>
+		<h3>Popular apps that use backbone</h3>
+		<p>
+			Popular apps that use backbone includes DocumentCloud, USA Today, LinkedIn Mobile, Hulu, Disqus, Khan Academy, etc, see more at official site <a href="http://backbonejs.org/#examples">Backbone.js</a>
+		</p>
+		<h2>Comparison Analysis</h2>
+		<h3>Internal Comparison</h3>
+		<p>
+			jQuery and Backbone are not direct competitors, they complement each other. Backbone, when compared to jQuery is relatively high level, it takes care of data management and application logic. On the other hand, jQuery is relatively “low level” and takes care of details such as selecting DOM elements. Although jQuery capable of building applications without Backbone, it lacks structure and often gets very messy for large applications. Thus, these two frameworks very well in conjunction.
+		</p>
+		<h3>External Comparison</h3>
+		<p>
+			Backbone is very simple and small, easy to learn. It has only 4 core components (Collection, Model, View, Route). With these 4 components, you can manage your front-end in a good MVC way. And Backbone works well naturally with jQuery and other js lib, so it’s quite easy to create a excellent web app with that.
+		</p>
+		<p>
+			However its pros also lead to its cons. Backbone lacks strong abstraction, if you want to write codes with complex logic and objects, you need to write lots of boilerplate code, but get customized application architecture at the same time. And Backbone only provides templates, but no UI Binding. If you really want that, you must write codes using methods in Backbone. 
+		</p>
+		<p>
+			In our practice, we spend lots time writing codes in Backbone components with jQuery selectors! Because the bound between Backbone’s views and models is not very tight, so you must write lots of additional codes. And when you finish up the TODO tutorial, and come up to a real project, you must do a lot of research to find out how to write something in Backbone. Dream and reality always differs a lot, isn’t it?
+		</p>
+		<p>
+			Let’s have a glance at other js frameworks.
+		</p>
+		<h4>Ember.js</h4>
+		<p>
+			Ember is an awesome framework. It provides router, module, and views just like backbone.
+ 		</p>
+ 		<p>
+			More than that, Ember supports composed view because it provides an excellent abstract view layer. For example, observe method provides the way to two-way data-binding. Ember imports many concepts from object-oriented programming languages. Like C# and Java, It provides getters, setters, observers, and interfaces for enumerable. With these features, you will reduce lots of work in low-levelness and eliminate boilerplate in codes. Without Ember.js, these same features would’ve been hellish to implement.
+ 		</p>
+ 		<p>
+			However, Backbone has strong community and lots of momentum, but ember is not fortunately enough. Programmers always complain that there’s little documentation for ember. Ember.js has yet to reach 1.0. Many things are still in flux. It’s painful. Error message given by Ember.js often suck. But I think it will be better.
+		</p>
+		<h4>Angular.js</h4>
+		<p>
+			Angular.js does a good job in UI binding and in our opinion, is more convenient and straightforward compared to Backbone. Below are some of the advantages and disadvantages Angular has over Backbone. <br>
+		</p>
+			<strong>Advantages:</strong>
+			<ol>
+				<li>
+					Angular renders the HTML by recognize the attributes with the “ng” prefix in the HTML. In contrast, Backbone only provides the template by tag “&lt;%=what you what to bind with &gt;”, and people must render the HTML by themselves when data changes, no two-way data-binding.
+					More than that Angular.js provides rich features in templates (filter).
+				</li>
+				<li>
+					And Angular also provides supports for unit testing. That’s really helpful when you debug.
+				</li>
+				<li>
+					Also Angular provides event and route, quite like Backbone
+				</li>
+			</ol>
+		<p>	
+			<strong>Disadvantages:</strong>
+			But Angular isn’t good at modulation compared to Backbone. In Angular, data bound with templates are something like modules but it doesn’t have any function or method binding with it. People must manage it by themselves. And when programming with Angular, you need to write additional “ng-” attributes for HTML element, the class and id in HTML aren’t enough for Angular, but sufficient for Backbone.
+		</p>
+		<h4>ExtJS</h4>
+		<p>
+			ExtJs originally was built as an add-on library extension of YUI, now it is a really powerful js framework.
+		</p>
+		<p>
+			ExtJS provides perfect MVC architecture for developers.  You can easily extend the default components to meet your needs, and extensions will be encapsulated within just those components. Also, it has an extraordinary range of user interface widgets. For example, high performance scalable grids, trees, menus, and more. With ExtJS, you’re working little with HTML but it offers a lot of power. A lot of things can be done with ExtJS, so it’s easy to create and maintain web app.I think it’s much much better than Backbone in all the aspects.
+		</p>
+		<p>
+			However, power comes at a cost.There is a steep learning curve compared to many of the other modern structural frameworks. If you’re a beginner, it’s difficult at first, but you will benefit a lot as long as you patient enough. Another problem with ExtJS is its license. ExtJs is released under GPLv3. If you want to use it, you must buy it or make your project open source. Anyway, I think it’s one of the most powerful js framework in the world.
+		</p>
+		<h2>Conclusion</h2>
+		<p>
+			Backbone gives a high-level structure to web applications when compared to frameworks such as jQuery, and however,  it appears to fall short when compared to similar frameworks with the same purpose. Although Backbone is lightweight and supposedly easy to use, our group had a tough time using it. We haven’t had the time to try similar frameworks such as Ember, Angular or Extjs yet, however we’d recommend giving those a try over Backbone. 
+		</p>
+		</div>
+	</body>
+</html>

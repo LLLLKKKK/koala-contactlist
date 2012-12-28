@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">		
+		<style>
+			@import url("css/demo.css");
+		</style>
+		<title>Technology Evaluation Demo</title>
+
+		<!-- Third-Party Libraries (Order matters) -->
+        <script type="text/javascript" src="js/libs/jquery-1.8.2.js"></script>
+        <script type="text/javascript" src="js/libs/underscore.js"></script>
+        <script type="text/javascript" src="js/libs/backbone.js"></script>
+        <script type="text/javascript" src="js/libs/backbone.localStorage-min.js"></script>
+        <script type="text/javascript" src="js/libs/backbone-validation-min.js"></script>
+        <script type="text/javascript" src="js/libs/jquery.qtip-1.0.0-rc3.min.js"></script>
+        <script type="text/javascript" src="js/libs/jquery.bpopup-0.7.0.min.js"></script>
+		
+        <!-- Application core (Order matters) -->
+ 		<script type="text/javascript" src="js/models/person.js"></script>
+        <script type="text/javascript" src="js/views/person_view.js"></script> 		
+ 		<script type="text/javascript" src="js/collections/personList.js"></script>
+		<script type="text/javascript" src="js/models/group.js"></script>	
+ 		<script type="text/javascript" src="js/collections/groupList.js"></script>
+        <script type="text/javascript" src="js/views/add_view.js"></script>
+		<script type="text/javascript" src="js/views/group_view.js"></script>
+
+        <!-- Modules (Order does not matter) -->
+        <script src="js/extra/application.js"></script>
+        
+	</head>
+	<body>
+		<script type = "text/template" id="contact_template">
+			<div class="actions">
+				<a class="edit icon_pencil" href="#"></a>	
+				<a class="delete" href="#">&times;</a>
+			</div>
+			<img src ="<%- photo %>" alt="photo" class=
+			"photo"/>
+			<div class="info">
+				<div class = "basic_info">
+					<span class="name"><%- firstname %> <%- lastname %></span>
+					<span class="phone"><%- phone %></span>
+				</div>
+				<div class = "detailed_info">
+					<span>Gender: <%- gender %></span>
+					<span>Email: <%- email %></span>
+					<span>Address: <%- address %></span>
+					<span>Group: <%- group %></span>
+				</div>
+			</div>
+        </script>
+        <script type="text/template" id="edit_template">
+			<form id="person_form" action="upload_file.php" method="post" enctype="multipart/form-data">
+				<img src ="<%- photo %>" alt="photo" class="photo"/>
+				<input type="file" class="upload_photo">	
+				<table>
+					<tr>
+						<td colspan="2"><label for="errorInf" class="errorInf"></label></td>
+					</tr>
+					<tr>
+						<td><input type = "text" class="firstname" id = "firstname" placeholder="Firstname" value="<%- firstname %>"></td>
+						<td><input type = "text" class="lastname" id = "lastname" placeholder="Lastname" value="<%- lastname %>"></td>
+					</tr>
+					<tr>
+						<td colspan="3"><input type = "text" class="phone" id = "phone" placeholder="Phone" value="<%- phone %>"></td>
+					</tr>
+					<tr>
+						<td colspan="3"><input type = "text" class="email" id = "email" placeholder="Email" value="<%- email %>"></td>
+					</tr>
+					<tr>
+						<td colspan="3"><input type = "text" class="address" id = "address" placeholder="Address" value="<%- address %>"></td>
+					</tr>
+					<tr>
+						<td colspan="3"><input type = "text" class="group" id = "group" placeholder="Group" value="<%- group %>"></td>
+					</tr>
+					<tr>
+						<td colspan="3"><input type = "radio" class="male" value = "male" name = "gender" checked = "true">Male
+						<input type = "radio" class="female" value = "female" name = "gender">Female</td>
+					</tr>
+				</table>
+				<div class="action">
+					<a href="#" class="blue_button ok right">OK</a>
+					<a href="#" class="white_button cancel right">Cancel</a>
+				</div>				
+			</form>    	
+        </script>
+		<script type = "text/template" id = "group_template">
+			<li id = "group_<%- id %>" class = "group">
+				<a href = "#">
+					<span><%- groupname %></span>
+					<span class = "right">(<%- order %>)</span>
+				</a>
+			</li>
+        </script>
+		<div id="nav_wrapper" class = "clearfix">
+			<div id="header">
+				<a href = "#">Group 6 - Tech Evaluation</a>
+				<a href = "#written" class="nav_link">Written</a>
+				<a href = "#" class="nav_link">Demo</a>
+			</div>
+			<div id="sidebar">
+				<ul></ul>
+			</div>			
+			<div id="container">
+				<div id="add_contact">
+					<a href = "#" class = "blue_button" id="add_button">Add A New Contact</a>
+					<div id="add_form" class = "clearfix"></div>	
+				</div>
+			</div>
+		</div>
+		<div id="content" class = "clearfix">
+			<ul id="contact_list" class = "left"></ul>
+		</div>
+		<div id="popup"><div></div></div>
+	</body>
+</html>
+
