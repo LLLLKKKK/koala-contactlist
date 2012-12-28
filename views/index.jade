@@ -1,5 +1,68 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  script(type='text/javascript', src='/javascripts/models/person.js')
+  script(type='text/javascript', src='/javascripts/models/group.js')
+
+  script(type='text/javascript', src='/javascripts/collections/personList.js')
+  script(type='text/javascript', src='/javascripts/collections/groupList.js')
+  
+  script(type='text/javascript', src='/javascripts/views/add_view.js')
+  script(type='text/javascript', src='/javascripts/views/person_view.js')
+  script(type='text/javascript', src='/javascripts/views/group_view.js')
+  
+  script(type='text/javascript', src='/javascripts/application.js')
+
+  script#contact_template(type='text/template')
+    .actions
+      a.edit.icon_pencil(href='#')
+      a.delete(href='#') &times;
+    img.photo(src!='<%- photo %>', alt='avatar')
+    .info
+      .basic_info
+        span.name <%- firstname %> <%- lastname %>
+        span.phone <%- phone %>
+      .detailed_info
+        span Gender: <%- gender %>
+        span Email: <%- email %>
+        span Address: <%- address %>
+        span Group: <%- group %>
+
+  script#edit_template(type='text/template')
+    form#person_form(action='', method='post', enctype='multipart/form-data')
+      img.photo(src!='<%- photo %>', alt!='photo')
+      input.upload_photo(type='file')
+      input.firstname(type='text', placeholder='Firstname', value!='<%- firstname %>')
+      input.lastname(type='text', placeholder='Lastname', value!='<%- lastname %>')
+      input.phone(type='text', placeholder='Phone', value!='<%- phone %>')
+      input.email(type='text', placeholder='Email', value!='<%- lastname %>')
+      input.address(type='text', placeholder='Address', value!='<%- address %>')
+      input.group(type='text', placeholder='Group', value!='<%- group %>')
+      label Male
+      input.male(type='radio', value='male', name='gender', checked='true')
+      label Female
+      input.female(type='radio', value='female', name='gender')
+      .action
+        a.blue_button.ok.right(href='#') OK
+        a.white_button.cancel.right(href='#') Cancel
+    
+  script#group_template(type='text/template')
+    li.group(id!='group_<%- id %>')
+      a(href='#')
+        span <%- groupname %>
+        span.right (<%- order %>)
+
+  #nav_wrapper.clearfix
+    #header
+      a(href='#') Group 6 - Tech Evaluation
+    #sidebar
+      ul
+    #container
+      #add_contact
+        a#add_button.blue_button(href='#') Add A New Contact
+        #add_form.clearfix
+
+  #content.clearfix
+    ul#contact_list.left
+  #popup
+    div
