@@ -1,78 +1,90 @@
-extends layout
+doctype 5
+html
+  head
+    title Contact List
+    link(rel='stylesheet', href='/stylesheets/bootstrap.min.css')
+    link(rel='stylesheet', href='/stylesheets/bootstrap-responsive.min.css')
+    link(rel='stylesheet', href='/stylesheets/demo.css')
+     
+  body
+    script#contact_template(type='text/template')
+      .actions.toright
+        a.edit.icon_pencil(href='#')
+        a.delete(href='#') &times;
+      .info
+        .basic_info.span2
+          img.photo(src!='<%- photo %>', alt='photo')
+        .detailed_info.span5
+          span.name <%- firstname %> <%- lastname %>
+          span.phone <%- phone %>
+          span Gender: <%- gender %>
+          span Email: <%- email %>
+          span Address: <%- address %>
+          span Group: <%- group %>
 
-block content
-  
-  script#contact_template(type='text/template')
-    .actions
-      a.edit.icon_pencil(href='#')
-      a.delete(href='#') &times;
-    img.photo(src!='<%- photo %>', alt='photo')
-    .info
-      .basic_info
-        span.name <%- firstname %> <%- lastname %>
-        span.phone <%- phone %>
-      .detailed_info
-        span Gender: <%- gender %>
-        span Email: <%- email %>
-        span Address: <%- address %>
-        span Group: <%- group %>
+    script#edit_template(type='text/template')
+      form(action='/upload_photo', method='post', enctype='multipart/form-data')
+        .span2
+          img.photo(src!='<%- photo %>', alt='photo')
+          label.radio.span2
+            input(type='radio', value='male', name='gender', checked='true')
+            | Male
+          label.radio.span2
+            input(type='radio', value='female', name='gender')
+            | Female
+        .span5
+          input.upload_photo.hidden(type='file', name='photo')
+          input.firstname.span2(type='text', name='firstname', placeholder='Firstname', value!='<%- firstname %>')
+          input.lastname.span2(type='text', name='lastname', placeholder='Lastname', value!='<%- lastname %>')
+          input.phone.span4(type='text', name='phone', placeholder='Phone', value!='<%- phone %>')
+          input.email.span4(type='text', name='email', placeholder='Email', value!='<%- lastname %>')
+          input.address.span4(type='text', name='address', placeholder='Address', value!='<%- address %>')
+          input.group.span4(type='text', name='group', placeholder='Group', value!='<%- group %>')  
 
-  script#edit_template(type='text/template')
-    form.contact_form(action='/upload_photo', method='post', enctype='multipart/form-data')
-      .span2
-        img.photo(src!='<%- photo %>', alt='photo')
-        label.radio.span2
-          input(type='radio', value='male', name='gender', checked='true')
-          | Male
-        label.radio.span2
-          input(type='radio', value='female', name='gender')
-          | Female
-      .span5
-        input.upload_photo.hidden(type='file', name='photo')
-        input.firstname.span2(type='text', name='firstname', placeholder='Firstname', value!='<%- firstname %>')
-        input.lastname.span2(type='text', name='lastname', placeholder='Lastname', value!='<%- lastname %>')
-        input.phone.span4(type='text', name='lastname', placeholder='Phone', value!='<%- phone %>')
-        input.email.span4(type='text', name='email', placeholder='Email', value!='<%- lastname %>')
-        input.address.span4(type='text', name='address', placeholder='Address', value!='<%- address %>')
-        input.group.span4(type='text', name='group', placeholder='Group', value!='<%- group %>')  
+        .actions.to-right
+          a.btn.span2.ok(href='#') OK
+          a.btn.btn-inverse.span2.cancel(href='#') Cancel
+      
+    script#group_template(type='text/template')
+      li.group
+        a(href='#')
+          span <%- groupname %>
+          span.right (<%- order %>)
 
-      .action
-        a.btn.span2.ok(href='#') OK
-        a.btn.btn-inverse.span2.cancel(href='#') Cancel
+    .navbar.navbar-inverse.navbar-fixed-top
+      .navbar-inner
+        .container
+          a.brand(href='#') Group 6 - Tech Evaluation
     
-  script#group_template(type='text/template')
-    li.group
-      a(href='#')
-        span <%- groupname %>
-        span.right (<%- order %>)
+    #contact-list-app.container
+      .sidebar-nav.span3.group-sidenav
+        ul.nav.nav-list.affix
+          li.nav-header Groups
+          li 
+            a asdfasdf
+      .span8
+        .contact_form
+          a.show.btn.btn-primary.span7(href='#') Add A New Contact
+          .form
+        .contact_list
+          ul
+     
+    script(type='text/javascript', src='/javascripts/libs/jquery-1.8.2.min.js')
+    //script(type='text/javascript', src='/javascripts/libs/jquery.qtip-1.0.0-rc3.min.js')
 
-  .navbar.navbar-inverse.navbar-fixed-top
-    .navbar-inner
-      .container
-        a.brand(href='#') Group 6 - Tech Evaluation
-  
-  .container
-    .sidebar-nav.span3.group-sidenav
-      ul.nav.nav-list.affix
-        li.nav-header Groups
-        li 
-          a asdfasdf
-    .span8
-      .contact_form
-        a.show.btn.btn-primary.span7(href='#') Add A New Contact
-        .form
-      .contact_list
-        ul
+    script(type='text/javascript', src='/javascripts/libs/underscore.js')
+    script(type='text/javascript', src='http://documentcloud.github.com/backbone/backbone.js')
+    script(type='text/javascript', src='/javascripts/libs/backbone-validation-min.js')
+    script(type='text/javascript', src='/javascripts/libs/backbone-localstorage.js')
+    script(type='text/javascript', src='/javascripts/models/contact.js')
+    //script(type='text/javascript', src='/javascripts/collections/contacts.js')
 
-  script(type='text/javascript', src='/javascripts/models/contact.js')
-  script(type='text/javascript', src='/javascripts/collections/contacts.js')
+    //script(type='text/javascript', src='/javascripts/models/group.js')
+    //script(type='text/javascript', src='/javascripts/collections/groups.js')
+    
+    //script(type='text/javascript', src='/javascripts/views/add_view.js')
+    //script(type='text/javascript', src='/javascripts/views/person_view.js')
+    //script(type='text/javascript', src='/javascripts/views/group_view.js')
+    //script(type='text/javascript', src='/javascripts/views/app_view.js')
 
-  script(type='text/javascript', src='/javascripts/models/group.js')
-  script(type='text/javascript', src='/javascripts/collections/groups.js')
-  
-  script(type='text/javascript', src='/javascripts/views/add_view.js')
-  script(type='text/javascript', src='/javascripts/views/person_view.js')
-  script(type='text/javascript', src='/javascripts/views/group_view.js')
-  script(type='text/javascript', src='/javascripts/views/app_view.js')
-
-  script(type='text/javascript', src='/javascripts/application.js')
+    script(type='text/javascript', src='/javascripts/application.js')

@@ -15,56 +15,20 @@ var Contact = Backbone.Model.extend({
   },
   
   initialize: function(){
+
   },
 
   clear: function() {
       this.destroy();
   }
-  /*,
 
-  validation: {
-    email: {
-      required: true,
-      pattern: 'email',
-      msg: 'Please enter a valid email address',
-    },
-    firstname: {
-      required: true,
-    },
-    lastname: {
-      required: true,
-    },
-    phone: 
-      [{
-          required: true,
-          msg: 'Phone number cannot be left blank',
-      }, {
-          pattern: 'digits',
-          msg: 'Please enter digits only',
-      }, {
-          minLength: 5,
-          msg: 'Phone number should be at least 5 digits',
-      }, {
-          maxLength: 12,
-          msg: 'Phone number can not exceed 12 digits',
-      }],
-    address: {
-      required: true,
-      msg: 'Please enter the contact\'s address',
-    },
-    group: {
-      required: true,
-      msg: 'Please give the contact a group',
-    }
-  },
-  */  
 });
 
 var Contacts = Backbone.Collection.extend({
   
   model: Contact,
   
-  localStorage: new Backbone.LocalStorage("group_storage"),
+  localStorage: new Backbone.LocalStorage("contacts_storage"),
   
   initialize: function(){
         
@@ -113,8 +77,11 @@ var ContactView = Backbone.View.extend({
 
   template : _.template($('#contact_template').html()),
 
-  events : {
+  edit_template: _.template($('#edit_template').html()),
 
+  events : {
+    'a.edit' : 'edit',
+    'a.delete' : 'clear'
   },
 
   render: function() {
@@ -122,6 +89,13 @@ var ContactView = Backbone.View.extend({
     return this;
   }
 
+  edit: function() {
+    this.$el.html(this.edit_template(this.model.toJSON()));
+  }
+
+  clear: function() {
+    this.model.destroy();
+  }
   
 });
 
@@ -222,78 +196,21 @@ var AddView = Backbone.View.extend({
       this.errorHandler(invalid);
     } */
     var data = this.$('form').serializeObject();
+    contacts.create(data);
+    /*
     var group = groups.where(data.group);
     if (group.length == 0) {
       group = groups.create( { groupname : data.group } );
     }
     group.contacts.create( data );
-    
+    */
     this.clearForm();
-    this.$('.contact_form').hide('fast');
+    this.$('.form').hide('fast');
     this.$('.show').show('fast');
-  }/*,
+  }
 
-  appendContact: function(contact) {
-    var group = _.find(groupList.models, function(model){
-      if(model.get('groupname') == contact.get('group').toLowerCase())
-          return model;
-    });
-    if( 
-      (group != undefined && $('#sidebar li#group_' + group.get('id')).hasClass('active')) ||
-      ($('#sidebar li#group_0').hasClass('active')) 
-      ) {
-      var view = new PersonView({model: contact});
-      $("#contact_list").prepend(view.render().el);
-    }
-  },*/
-/*
-    initializeList: function() {
-        personList.each(function(contact){
-             var view = new PersonView({model: contact});
-                $("#contact_list").prepend(view.render().el);
-        });
-       
-    },
-*//*
-  errorHandler: function(invalid) {
-    for(x in invalid) {
-      
-      this.$(x).qtip({
-        content: invalid[x],
-        style: {
-          name: 'red',
-        },
-        show: {
-          when: false,
-          ready: true,
-        },
-        hide: {
-          when: {
-              event: 'focus',
-          }   
-        }
-      });
-
-      this.$(x).addClass('warning');
-    }  
-  },
-
-    successHandler: function(model, response) {
-        $("#add_form input:not(:radio)").each(function (i, el) {
-            $(el).val('');
-        });
-        $("#add_form img.photo").attr('src', 'images/dummy.png')
-
-        $('#add_form #person_form').hide('fast').addClass('add_border');
-        $('#add_button').show('fast');
-    },
-    */    
-/*
-    callUpload: function() {
-        $('#add_form #person_form input[type="file"]').click();
-    },
     
-  uploadPhoto: function(ev) {
+ /* uploadPhoto: function(ev) {
     if ($this.('.upload_photo').val() != "") {
  
       formdata = new FormData();
@@ -322,18 +239,29 @@ var AddView = Backbone.View.extend({
 
   var AppView = Backbone.View.extend({
 
+    el: $('#contact-list-app'),
+
     initialize : function() {
       this.addView = new AddView( { model : new Contact() } );
-      this.groupView = new GroupView();
+      //this.groupView = new GroupView();
 
-      this.listenTo(groups, 'add', this.addOneGroup);
+      this.listenTo(contacts, 'add', this.addOneContact)
+      //this.listenTo(groups, 'add', this.addOneGroup);
+
     },
 
     addOneGroup: function() {
 
+    },
+
+    addOneContact: function(contact) {
+      var view = new ContactView({ model : contact });
+      this.$('.contact_list ul').append(view.render().el);
     }
+
   });
 
+  var contacts = new Contacts();
   var groups = new Groups();
   var appView = new AppView();
 });
