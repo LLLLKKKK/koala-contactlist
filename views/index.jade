@@ -1,23 +1,12 @@
 extends layout
 
 block content
-  script(type='text/javascript', src='/javascripts/models/person.js')
-  script(type='text/javascript', src='/javascripts/models/group.js')
-
-  script(type='text/javascript', src='/javascripts/collections/personList.js')
-  script(type='text/javascript', src='/javascripts/collections/groupList.js')
   
-  script(type='text/javascript', src='/javascripts/views/add_view.js')
-  script(type='text/javascript', src='/javascripts/views/person_view.js')
-  script(type='text/javascript', src='/javascripts/views/group_view.js')
-  
-  script(type='text/javascript', src='/javascripts/application.js')
-
   script#contact_template(type='text/template')
     .actions
       a.edit.icon_pencil(href='#')
       a.delete(href='#') &times;
-    img.photo(src!='<%- photo %>', alt='avatar')
+    img.photo(src!='<%- photo %>', alt='photo')
     .info
       .basic_info
         span.name <%- firstname %> <%- lastname %>
@@ -29,40 +18,61 @@ block content
         span Group: <%- group %>
 
   script#edit_template(type='text/template')
-    form#person_form(action='', method='post', enctype='multipart/form-data')
-      img.photo(src!='<%- photo %>', alt!='photo')
-      input.upload_photo(type='file')
-      input.firstname(type='text', placeholder='Firstname', value!='<%- firstname %>')
-      input.lastname(type='text', placeholder='Lastname', value!='<%- lastname %>')
-      input.phone(type='text', placeholder='Phone', value!='<%- phone %>')
-      input.email(type='text', placeholder='Email', value!='<%- lastname %>')
-      input.address(type='text', placeholder='Address', value!='<%- address %>')
-      input.group(type='text', placeholder='Group', value!='<%- group %>')
-      label Male
-      input.male(type='radio', value='male', name='gender', checked='true')
-      label Female
-      input.female(type='radio', value='female', name='gender')
+    form.contact_form(action='/upload_photo', method='post', enctype='multipart/form-data')
+      .span2
+        img.photo(src!='<%- photo %>', alt='photo')
+        label.radio.span2
+          input(type='radio', value='male', name='gender', checked='true')
+          | Male
+        label.radio.span2
+          input(type='radio', value='female', name='gender')
+          | Female
+      .span5
+        input.upload_photo.hidden(type='file', name='photo')
+        input.firstname.span2(type='text', name='firstname', placeholder='Firstname', value!='<%- firstname %>')
+        input.lastname.span2(type='text', name='lastname', placeholder='Lastname', value!='<%- lastname %>')
+        input.phone.span4(type='text', name='lastname', placeholder='Phone', value!='<%- phone %>')
+        input.email.span4(type='text', name='email', placeholder='Email', value!='<%- lastname %>')
+        input.address.span4(type='text', name='address', placeholder='Address', value!='<%- address %>')
+        input.group.span4(type='text', name='group', placeholder='Group', value!='<%- group %>')  
+
       .action
-        a.blue_button.ok.right(href='#') OK
-        a.white_button.cancel.right(href='#') Cancel
+        a.btn.span2.ok(href='#') OK
+        a.btn.btn-inverse.span2.cancel(href='#') Cancel
     
   script#group_template(type='text/template')
-    li.group(id!='group_<%- id %>')
+    li.group
       a(href='#')
         span <%- groupname %>
         span.right (<%- order %>)
 
-  #nav_wrapper.clearfix
-    #header
-      a(href='#') Group 6 - Tech Evaluation
-    #sidebar
-      ul
-    #container
-      #add_contact
-        a#add_button.blue_button(href='#') Add A New Contact
-        #add_form.clearfix
+  .navbar.navbar-inverse.navbar-fixed-top
+    .navbar-inner
+      .container
+        a.brand(href='#') Group 6 - Tech Evaluation
+  
+  .container
+    .sidebar-nav.span3.group-sidenav
+      ul.nav.nav-list.affix
+        li.nav-header Groups
+        li 
+          a asdfasdf
+    .span8
+      .contact_form
+        a.show.btn.btn-primary.span7(href='#') Add A New Contact
+        .form
+      .contact_list
+        ul
 
-  #content.clearfix
-    ul#contact_list.left
-  #popup
-    div
+  script(type='text/javascript', src='/javascripts/models/contact.js')
+  script(type='text/javascript', src='/javascripts/collections/contacts.js')
+
+  script(type='text/javascript', src='/javascripts/models/group.js')
+  script(type='text/javascript', src='/javascripts/collections/groups.js')
+  
+  script(type='text/javascript', src='/javascripts/views/add_view.js')
+  script(type='text/javascript', src='/javascripts/views/person_view.js')
+  script(type='text/javascript', src='/javascripts/views/group_view.js')
+  script(type='text/javascript', src='/javascripts/views/app_view.js')
+
+  script(type='text/javascript', src='/javascripts/application.js')

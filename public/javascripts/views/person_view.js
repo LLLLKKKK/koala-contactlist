@@ -1,3 +1,5 @@
+$(function(){
+
 var PersonView = Backbone.View.extend({
     
     tagName : "li",
@@ -177,3 +179,5 @@ var PersonView = Backbone.View.extend({
         }  
     }
 });
+
+})
