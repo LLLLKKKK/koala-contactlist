@@ -80,18 +80,23 @@ var ContactView = Backbone.View.extend({
   edit_template: _.template($('#edit_template').html()),
 
   events : {
-    'a.edit' : 'edit',
-    'a.delete' : 'clear'
+    'click a.edit' : 'edit',
+    'click a.delete' : 'clear'
+  },
+
+  initialize: function() {
+    this.listenTo(this.model, 'change', this.render);
+    this.listenTo(this.model, 'destroy', this.remove);
   },
 
   render: function() {
     this.$el.html(this.template(this.model.toJSON()));
     return this;
-  }
+  },
 
   edit: function() {
     this.$el.html(this.edit_template(this.model.toJSON()));
-  }
+  },
 
   clear: function() {
     this.model.destroy();

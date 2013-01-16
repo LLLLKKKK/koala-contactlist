@@ -53,6 +53,10 @@ img.photo {
   float: left;
 }
 
-.contact_list {
+.contact_list ul {
+  list-style: none;
+}
+
+.contact_list ul > li {
   float: left;
 }

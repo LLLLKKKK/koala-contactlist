@@ -9,18 +9,20 @@ html
   body
     script#contact_template(type='text/template')
       .actions.toright
-        a.edit.icon_pencil(href='#')
-        a.delete(href='#') &times;
+        a.edit
+          i.icon-edit
+        a.delete
+          i.icon-trash
       .info
         .basic_info.span2
           img.photo(src!='<%- photo %>', alt='photo')
         .detailed_info.span5
-          span.name <%- firstname %> <%- lastname %>
-          span.phone <%- phone %>
-          span Gender: <%- gender %>
-          span Email: <%- email %>
-          span Address: <%- address %>
-          span Group: <%- group %>
+          span.name.span4 <%- firstname %> <%- lastname %>
+          span.phone.span4 <%- phone %>
+          span.span4 Gender: <%- gender %>
+          span.span4 Email: <%- email %>
+          span.span4 Address: <%- address %>
+          span.span4 Group: <%- group %>
 
     script#edit_template(type='text/template')
       form(action='/upload_photo', method='post', enctype='multipart/form-data')
