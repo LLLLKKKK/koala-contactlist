@@ -28,33 +28,43 @@ var Contacts = Backbone.Collection.extend({
   
   model: Contact,
   
-  localStorage: new Backbone.LocalStorage("contacts_storage"),
-  
-  initialize: function(){
-        
+  constructor: function(attributes, options){
+    this.localStorage = new Backbone.LocalStorage(attributes.groupname + "_contacts_storage");
+    Backbone.Collection.prototype.constructor.call(this, attributes);
   },
+
+  initialize: function() {
+  
+  }
   
 });
 
 var Group = Backbone.Model.extend({
 
   defaults: {
-    groupname: "", 
-    count: 0
+    groupname: "",
+    contactCount: 0
   },
-  
-  contacts : new Contacts(),
 
-  initialize: function() {
-    //this.on('change', this.updateCount);
+  constructor: function(attributes, options) {
+    this.contacts = new Contacts({ groupname : attributes.groupname })
+
+    Backbone.Model.prototype.constructor.call(this, attributes);
+
+    this.listenTo(this.contacts, 'change', this.updateCount)
+
+    _.bindAll(this);
   },
 
   clear: function() {
+    this.contacts.destroy();
     this.destroy();
   },
-  
+
   updateCount: function() {
-    this.count = this.Contacts.length;
+    this.contactCount = this.contacts.length;
+    if (this.contacts.length == 0)
+      this.clear();
   }
 
 });
@@ -81,7 +91,9 @@ var ContactView = Backbone.View.extend({
 
   events : {
     'click a.edit' : 'edit',
-    'click a.delete' : 'clear'
+    'click a.delete' : 'clear',
+    'click a.ok' : 'save',
+    'click a.cancel' : 'cancel'
   },
 
   initialize: function() {
@@ -98,6 +110,16 @@ var ContactView = Backbone.View.extend({
     this.$el.html(this.edit_template(this.model.toJSON()));
   },
 
+  save: function() {
+    var data = this.$('form').serializeObject();
+    this.model.save(data);
+    this.$el.html(this.template(this.model.toJSON()));
+  },
+
+  cancel: function() {
+    this.$el.html(this.template(this.model.toJSON()));
+  },
+
   clear: function() {
     this.model.destroy();
   }
@@ -106,36 +128,36 @@ var ContactView = Backbone.View.extend({
 
 var GroupView = Backbone.View.extend({
   
-  el : $('group-sidenav ul'),
+  tagName: 'li',
 
   template : _.template($('#group_template').html()),
 
   events: {
+    'click a' : 'setFocus'
   },
 
   initialize: function() {
-   // this.listenTo(groups, 'add', this.addOne);
-    //this.listenTo(groups, 'reset', this.addAll)
-    //this.listenTo(groups, 'all', this.render)
+    this.listenTo(this.model, 'change', this.render)
   },
   
 
   render: function() {
-
+    this.$el.html(this.template(this.model.toJSON()));
+    return this;
   },
 
-  addOne: function() {
-    this.el.append(this.template({ groupname : this.model.groupname, count : this.model.count }))
-  },
-  
-  addAll: function() {
+  setFocus: function() {
+    if (AppView.selectedGroup !== this) {
+      if (AppView.selectedGroup !== undefined)
+        AppView.selectedGroup.$el.removeClass('active');
+      AppView.selectedGroup = this;
+      this.$el.addClass('active');
 
-  },
+      appView.renderGroup(this.model);
+    }
+  }
 
-  updateAllGroup: function() {
-    groupList.each(this.appendGroup);
-  },
-  
+
 });
 
 var AddView = Backbone.View.extend({
@@ -159,8 +181,7 @@ var AddView = Backbone.View.extend({
   },
 
   render: function() {
-    //Backbone.Validation.bind(this);
-    return this;
+
   },
 
   showForm: function(e) {
@@ -190,84 +211,103 @@ var AddView = Backbone.View.extend({
 
   addContact: function(e) {
     e.preventDefault();
-    /*
-    var data = this.$('form').serializeObject();
-    this.model = new Person(formData);
 
-    var invalid = this.model.validate();
-    if(!invalid)
-      personList.create(formData, {success: this.successHandler});
-    else {
-      this.errorHandler(invalid);
-    } */
     var data = this.$('form').serializeObject();
-    contacts.create(data);
-    /*
+    //contacts.create(data);
+    
     var group = groups.where(data.group);
     if (group.length == 0) {
       group = groups.create( { groupname : data.group } );
     }
     group.contacts.create( data );
-    */
+    
     this.clearForm();
     this.$('.form').hide('fast');
     this.$('.show').show('fast');
   }
 
+  
+/* uploadPhoto: function(ev) {
+  if ($this.('.upload_photo').val() != "") {
+
+    formdata = new FormData();
+    reader = new FileReader();
+    file = $('#add_form .upload_photo').get(0).files[0];
+    reader.readAsDataURL(file);
+    formdata.append("file", file);
+
+    $.ajax({
+      type: "POST",
+      url: "upload_file.php",
+      processData: false,
+      contentType: false,
+      data: formdata
+    }).done(function(msg) {
+      if (msg.charAt(0) != 'i') {
+          $('#add_form .errorInf').html(msg);
+      } else {
+          $('#add_form img.photo').attr('src', msg);
+          $('#add_form .errorInf').html("");
+      }
+    }); 
+  }
+},*/
+});
+
+//var contacts = new Contacts({ groupname : 'asdf' });
+
+var AppView = Backbone.View.extend({
+
+  el: $('#contact-list-app'),
+
+  events: {
     
- /* uploadPhoto: function(ev) {
-    if ($this.('.upload_photo').val() != "") {
+  },
+
+  initialize : function() {
+    this.addView = new AddView( { model : new Contact() } );
+
+    //this.listenTo(contacts, 'add', this.addOneContact);
+    //this.listenTo(contacts, 'reset', this.addAllContact);
+    this.listenTo(groups, 'add', this.addOneGroup);
+    this.listenTo(groups, 'reset', this.addAllGroup);
+    _.bindAll(this);
+
+    groups.fetch();
+        //contacts.fetch();
+
+    this.contact_list = $('.contact_list ul');
+  },
+
+
+  addOneContact: function(contact) {
+    var view = new ContactView({ model : contact });
+    this.contact_list.append(view.render().el);
+  },
  
-      formdata = new FormData();
-      reader = new FileReader();
-      file = $('#add_form .upload_photo').get(0).files[0];
-      reader.readAsDataURL(file);
-      formdata.append("file", file);
+  addAllContact: function() {
+    contacts.each(this.addOneContact, this);
+  },
 
-      $.ajax({
-        type: "POST",
-        url: "upload_file.php",
-        processData: false,
-        contentType: false,
-        data: formdata
-      }).done(function(msg) {
-        if (msg.charAt(0) != 'i') {
-            $('#add_form .errorInf').html(msg);
-        } else {
-            $('#add_form img.photo').attr('src', msg);
-            $('#add_form .errorInf').html("");
-        }
-      }); 
-    }
-  },*/
-  });
+  renderGroup: function(group) {
+    this.contact_list.hide('fast').html('').show();
+    group.contacts.each(this.addOneContact, this);
+  },
 
-  var AppView = Backbone.View.extend({
+  addOneGroup: function(group) {
+    var view = new GroupView({ model : group });
+    this.$('.group-sidenav ul').append(view.render().el);
+  },
 
-    el: $('#contact-list-app'),
+  addAllGroup: function() {
+    groups.each(this.addOneGroup);
+  }  
 
-    initialize : function() {
-      this.addView = new AddView( { model : new Contact() } );
-      //this.groupView = new GroupView();
+});
 
-      this.listenTo(contacts, 'add', this.addOneContact)
-      //this.listenTo(groups, 'add', this.addOneGroup);
 
-    },
+var groups = new Groups();
+var appView = new AppView();
 
-    addOneGroup: function() {
-
-    },
-
-    addOneContact: function(contact) {
-      var view = new ContactView({ model : contact });
-      this.$('.contact_list ul').append(view.render().el);
-    }
-
-  });
-
-  var contacts = new Contacts();
-  var groups = new Groups();
-  var appView = new AppView();
 });
 

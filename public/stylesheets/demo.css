@@ -27,7 +27,8 @@ img.photo {
   position: fixed;
 }
 
-.group-sidenav > a {
+.group-sidenav a,
+.group-sidenav a:hover {
   padding: 8px 15px;
   border: 1px solid #e5e5e5;
 }
@@ -53,10 +54,21 @@ img.photo {
   float: left;
 }
 
+.contact_list {
+  margin-top: 20px;
+  float: left;
+}
+
 .contact_list ul {
   list-style: none;
 }
 
 .contact_list ul > li {
   float: left;
+
+  font-size: 20px;
+}
+
+.contact_list ul > li span {
+  margin: 10px 5px 10px 50px;
 }

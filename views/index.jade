@@ -48,10 +48,9 @@ html
           a.btn.btn-inverse.span2.cancel(href='#') Cancel
       
     script#group_template(type='text/template')
-      li.group
-        a(href='#')
-          span <%- groupname %>
-          span.right (<%- order %>)
+      a(href='#')
+        span <%- groupname %>
+        span.right (<%- contactCount %>)
 
     .navbar.navbar-inverse.navbar-fixed-top
       .navbar-inner
@@ -75,7 +74,7 @@ html
     //script(type='text/javascript', src='/javascripts/libs/jquery.qtip-1.0.0-rc3.min.js')
 
     script(type='text/javascript', src='/javascripts/libs/underscore.js')
-    script(type='text/javascript', src='http://documentcloud.github.com/backbone/backbone.js')
+    script(type='text/javascript', src='/javascripts/libs/backbone.js')
     script(type='text/javascript', src='/javascripts/libs/backbone-validation-min.js')
     script(type='text/javascript', src='/javascripts/libs/backbone-localstorage.js')
     script(type='text/javascript', src='/javascripts/models/contact.js')
