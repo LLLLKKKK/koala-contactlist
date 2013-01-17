@@ -43,7 +43,6 @@ var Group = Backbone.Model.extend({
 
   defaults: {
     groupname: "",
-    contactCount: 0
   },
 
   events : {
@@ -52,22 +51,13 @@ var Group = Backbone.Model.extend({
 
   constructor: function(attributes, options) {
     this.contacts = new Contacts(undefined, { groupname : attributes.groupname })
+    this.contacts.group = this;
 
     Backbone.Model.prototype.constructor.call(this, attributes);
-
-    this.listenTo(this.contacts, 'change', this.updateCount)
   },
 
-  clear: function() {
-    this.contacts.destroy();
-    this.destroy();
-  },
-
-  updateCount: function() {
-    //this.contactCount = this.contacts.length;
-    this.save( { contactCount : this.contacts.length });
-    if (this.contacts.length == 0)
-      this.clear();
+  initialize: function() {
+    
   }
 
 });
@@ -85,7 +75,7 @@ var Groups = Backbone.Collection.extend({
   fetchAllContacts: function(){
     this.each(function(g){
       g.contacts.fetch();
-    })  
+    });
   }
 
 });
@@ -142,25 +132,37 @@ var GroupView = Backbone.View.extend({
   template : _.template($('#group_template').html()),
 
   events: {
-    'click a' : 'setFocus'
+    'click a.focus' : 'setFocus',
+    'click .delete' : 'clear'
   },
 
   initialize: function() {
     this.listenTo(this.model, 'change', this.render);
     this.listenTo(this.model, 'destroy', this.remove);
+    this.listenTo(this.model.contacts, 'remove', this.render)
+    this.listenTo(this.model.contacts, 'add', this.render) 
   },
   
 
   render: function() {
-    this.$el.html(this.template(this.model.toJSON()));
+    var j = this.model.toJSON();
+    j['contactCount'] = this.model.contacts.length;
+    this.$el.html(this.template(j));
     return this;
   },
 
+  clear: function() {
+    for (var i = this.model.contacts.length - 1; i >= 0; i--)
+      this.model.contacts.at(i).destroy();
+
+    this.model.destroy();
+  },
+
   setFocus: function() {
-    if (AppView.selectedGroup != this) {
-      if (AppView.selectedGroup !== undefined)
-        AppView.selectedGroup.$el.removeClass('active');
-      AppView.selectedGroup = this;
+    if (appView.selectedGroup != this) {
+      if (appView.selectedGroup !== undefined)
+        appView.selectedGroup.$el.removeClass('active');
+      appView.selectedGroup = this;
       this.$el.addClass('active');
     }
 
@@ -217,14 +219,18 @@ var AddView = Backbone.View.extend({
     var group = groups.where({ groupname : data.group });
     if (group.length == 0) {
       group = groups.create( { groupname : data.group } );
-      group.contacts.create( data );
     } else {
-      group[0].contacts.create( data );
+      group = group[0];
     }
+    group.contacts.create( data );
 
     this.clearForm();
     this.$('.form').hide('fast');
     this.$('.show').show('fast');
+
+    if (appView.selectedGroup && appView.selectedGroup.model == group) {
+      appView.renderGroup(group);
+    }
   }
 
   
@@ -268,6 +274,7 @@ var AppView = Backbone.View.extend({
 
     this.listenTo(groups, 'add', this.addOneGroup);
     this.listenTo(groups, 'reset', this.addAllGroup);
+
     _.bindAll(this);
 
     groups.fetch();

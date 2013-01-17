@@ -48,9 +48,10 @@ html
           a.btn.btn-inverse.span2.cancel(href='#') Cancel
       
     script#group_template(type='text/template')
-      a(href='#')
+      a.focus(href='#')
         span <%- groupname %>
         span.right (<%- contactCount %>)
+      i.delete.icon-trash
 
     .navbar.navbar-inverse.navbar-fixed-top
       .navbar-inner
