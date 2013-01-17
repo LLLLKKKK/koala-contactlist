@@ -276,6 +276,12 @@ var AppView = Backbone.View.extend({
     this.contact_list = $('.contact_list ul');
   },
 
+
+  addOneContact: function(contact) {
+    var view = new ContactView({ model : contact });
+    this.contact_list.append(view.render().el);
+  },
+
   renderGroup: function(group) {
     this.contact_list.html('');
     group.contacts.each(this.addOneContact, this);
