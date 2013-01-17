@@ -29,7 +29,7 @@ var Contacts = Backbone.Collection.extend({
   model: Contact,
   
   constructor: function(attributes, options){
-    this.localStorage = new Backbone.LocalStorage(attributes.groupname + "_contacts_storage");
+    this.localStorage = new Backbone.LocalStorage(options.groupname + "_contacts_storage");
     Backbone.Collection.prototype.constructor.call(this, attributes);
   },
 
@@ -46,14 +46,16 @@ var Group = Backbone.Model.extend({
     contactCount: 0
   },
 
+  events : {
+
+  },
+
   constructor: function(attributes, options) {
-    this.contacts = new Contacts({ groupname : attributes.groupname })
+    this.contacts = new Contacts(undefined, { groupname : attributes.groupname })
 
     Backbone.Model.prototype.constructor.call(this, attributes);
 
     this.listenTo(this.contacts, 'change', this.updateCount)
-
-    _.bindAll(this);
   },
 
   clear: function() {
@@ -62,7 +64,8 @@ var Group = Backbone.Model.extend({
   },
 
   updateCount: function() {
-    this.contactCount = this.contacts.length;
+    //this.contactCount = this.contacts.length;
+    this.save( { contactCount : this.contacts.length });
     if (this.contacts.length == 0)
       this.clear();
   }
@@ -78,6 +81,12 @@ var Groups = Backbone.Collection.extend({
   initialize: function() {
     
   },
+
+  fetchAllContacts: function(){
+    this.each(function(g){
+      g.contacts.fetch();
+    })  
+  }
 
 });
 
@@ -137,7 +146,8 @@ var GroupView = Backbone.View.extend({
   },
 
   initialize: function() {
-    this.listenTo(this.model, 'change', this.render)
+    this.listenTo(this.model, 'change', this.render);
+    this.listenTo(this.model, 'destroy', this.remove);
   },
   
 
@@ -147,14 +157,14 @@ var GroupView = Backbone.View.extend({
   },
 
   setFocus: function() {
-    if (AppView.selectedGroup !== this) {
+    if (AppView.selectedGroup != this) {
       if (AppView.selectedGroup !== undefined)
         AppView.selectedGroup.$el.removeClass('active');
       AppView.selectedGroup = this;
       this.$el.addClass('active');
-
-      appView.renderGroup(this.model);
     }
+
+    appView.renderGroup(this.model);
   }
 
 
@@ -169,19 +179,11 @@ var AddView = Backbone.View.extend({
   events: {
     "click a.ok": "addContact",
     "click a.cancel": "hideForm",
-    "click a.show": "showForm"/*,
-    "change .upload_photo": "uploadPhoto",
-    "click img" : "callUpload"*/
+    "click a.show": "showForm"
   },
 
   initialize: function () {
     this.$('.form').html(this.template(this.model.toJSON())).hide();
-  
-
-  },
-
-  render: function() {
-
   },
 
   showForm: function(e) {
@@ -205,22 +207,21 @@ var AddView = Backbone.View.extend({
     });
         
     this.$('input').removeClass('warning');
-
-    // destroy all gtips
   },
 
   addContact: function(e) {
     e.preventDefault();
 
     var data = this.$('form').serializeObject();
-    //contacts.create(data);
     
-    var group = groups.where(data.group);
+    var group = groups.where({ groupname : data.group });
     if (group.length == 0) {
       group = groups.create( { groupname : data.group } );
+      group.contacts.create( data );
+    } else {
+      group[0].contacts.create( data );
     }
-    group.contacts.create( data );
-    
+
     this.clearForm();
     this.$('.form').hide('fast');
     this.$('.show').show('fast');
@@ -254,8 +255,6 @@ var AddView = Backbone.View.extend({
 },*/
 });
 
-//var contacts = new Contacts({ groupname : 'asdf' });
-
 var AppView = Backbone.View.extend({
 
   el: $('#contact-list-app'),
@@ -267,30 +266,18 @@ var AppView = Backbone.View.extend({
   initialize : function() {
     this.addView = new AddView( { model : new Contact() } );
 
-    //this.listenTo(contacts, 'add', this.addOneContact);
-    //this.listenTo(contacts, 'reset', this.addAllContact);
     this.listenTo(groups, 'add', this.addOneGroup);
     this.listenTo(groups, 'reset', this.addAllGroup);
     _.bindAll(this);
 
     groups.fetch();
-        //contacts.fetch();
+    groups.fetchAllContacts();
 
     this.contact_list = $('.contact_list ul');
   },
 
-
-  addOneContact: function(contact) {
-    var view = new ContactView({ model : contact });
-    this.contact_list.append(view.render().el);
-  },
- 
-  addAllContact: function() {
-    contacts.each(this.addOneContact, this);
-  },
-
   renderGroup: function(group) {
-    this.contact_list.hide('fast').html('').show();
+    this.contact_list.html('');
     group.contacts.each(this.addOneContact, this);
   },
 
