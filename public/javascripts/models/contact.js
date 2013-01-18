@@ -174,7 +174,9 @@ var GroupView = Backbone.View.extend({
   initialize: function() {
     this.listenTo(this.model, 'change', this.render);
     this.listenTo(this.model, 'destroy', this.remove);
-    this.listenTo(this.model.contacts, 'all', this.render)
+    this.listenTo(this.model.contacts, 'remove', this.render)
+    this.listenTo(this.model.contacts, 'add', this.render)
+    this.listenTo(this.model.contacts, 'reset', this.render) 
   },
   
 
