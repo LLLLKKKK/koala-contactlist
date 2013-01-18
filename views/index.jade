@@ -25,7 +25,7 @@ html
           span.span4 Group: <%- group %>
 
     script#edit_template(type='text/template')
-      form(action='/upload_photo', method='post', enctype='multipart/form-data')
+      form.upload_photo(action='/upload_photo', method='post', enctype='multipart/form-data')
         .span2
           img.photo(src!='<%- photo %>', alt='photo')
           label.radio.span2

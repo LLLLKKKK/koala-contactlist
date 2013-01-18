@@ -221,14 +221,7 @@ _.extend(Backbone.Validation.callbacks, {
           tooltip: 'bottomLeft'
         }
       },
-      style: {
-        name: 'cream',
-        border: {
-          width: 3,
-          radius: 8
-        },
-        tip: true
-      },
+      style: 'mstyle',
       show: {
         when: false,
         ready: true,
@@ -251,7 +244,8 @@ var AddView = Backbone.View.extend({
   events: {
     "click a.ok": "addContact",
     "click a.cancel": "hideForm",
-    "click a.show": "showForm"
+    "click a.show": "showForm",
+    'click img.photo' : 'uploadPhoto'
   },
 
   initialize: function () {
@@ -311,34 +305,51 @@ var AddView = Backbone.View.extend({
         appView.renderGroup(group);
       }
     }
-  }
-
+  },
   
-/* uploadPhoto: function(ev) {
-  if ($this.('.upload_photo').val() != "") {
+  uploadPhoto: function(ev) {
+    if (this.$('.upload_photo').val() != "") {
 
-    formdata = new FormData();
-    reader = new FileReader();
-    file = $('#add_form .upload_photo').get(0).files[0];
-    reader.readAsDataURL(file);
-    formdata.append("file", file);
+      formdata = new FormData();
+      reader = new FileReader();
+      file = this.$('.upload_photo').get(0).files[0];
+      reader.readAsDataURL(file);
+      formdata.append("file", file);
 
-    $.ajax({
-      type: "POST",
-      url: "upload_file.php",
-      processData: false,
-      contentType: false,
-      data: formdata
-    }).done(function(msg) {
-      if (msg.charAt(0) != 'i') {
-          $('#add_form .errorInf').html(msg);
-      } else {
-          $('#add_form img.photo').attr('src', msg);
-          $('#add_form .errorInf').html("");
-      }
-    }); 
+      $.ajax({
+        type: "POST",
+        url: "/upload_photo",
+        processData: false,
+        contentType: false,
+        data: formdata
+      }).done(function(msg) {
+        if (msg != 'success') {
+          this.$('img.photo').qtip({
+            content: error,
+            position: {
+              corner: {
+                target: 'topRight',
+                tooltip: 'bottomLeft'
+              }
+            },
+            style: 'mstyle',
+            show: {
+              when: false,
+              ready: true,
+            },
+            hide: {
+              when: {
+                event: 'unfocus',
+              }          
+            }
+          });
+        } else {
+          this.$('img.photo').attr('src', msg);
+        }
+      }); 
+    }
   }
-},*/
+
 });
 
 var AppView = Backbone.View.extend({

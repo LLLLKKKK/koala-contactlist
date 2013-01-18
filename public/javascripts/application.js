@@ -15,3 +15,12 @@ $.fn.serializeObject = function()
   });
   return o;
 };
+
+$.fn.qtip.styles.mstyle = {
+  name: 'cream',
+  border: {
+    width: 3,
+    radius: 8
+  },
+  tip: true
+}
