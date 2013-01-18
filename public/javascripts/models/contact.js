@@ -13,14 +13,42 @@ var Contact = Backbone.Model.extend({
     group: "",
     photo:"images/dummy.png"
   },
-  
-  initialize: function(){
 
+  validation: {
+    email: {
+      required: true,
+      pattern: 'email',
+      msg: 'Please enter a valid email address',
+    },
+    firstname: {
+      required: true,
+    },
+    lastname: {
+      required: true,
+    },
+    phone: 
+      [{
+        required: true,
+        msg: 'Phone number cannot be left blank',
+      }, {
+        pattern: 'digits',
+        msg: 'Please enter digits only',
+      }, {
+        minLength: 5,
+        msg: 'Phone number should be at least 5 digits',
+      }, {
+        maxLength: 12,
+        msg: 'Phone number can not exceed 12 digits',
+      }],
+    address: {
+      required: true,
+      msg: 'Please enter the contact\'s address',
+    },
+    group: {
+      required: true,
+      msg: 'Please give the contact a group',
+    }
   },
-
-  clear: function() {
-      this.destroy();
-  }
 
 });
 
@@ -98,6 +126,8 @@ var ContactView = Backbone.View.extend({
   initialize: function() {
     this.listenTo(this.model, 'change', this.render);
     this.listenTo(this.model, 'destroy', this.remove);
+
+    Backbone.Validation.bind(this);
   },
 
   render: function() {
@@ -111,8 +141,9 @@ var ContactView = Backbone.View.extend({
 
   save: function() {
     var data = this.$('form').serializeObject();
-    this.model.save(data);
-    this.$el.html(this.template(this.model.toJSON()));
+    if (this.model.save(data, { validate : true })) {
+      this.$el.html(this.template(this.model.toJSON()));
+    }
   },
 
   cancel: function() {
@@ -132,15 +163,18 @@ var GroupView = Backbone.View.extend({
   template : _.template($('#group_template').html()),
 
   events: {
-    'click a.focus' : 'setFocus',
     'click .delete' : 'clear'
+  },
+
+  constructor: function(options) {
+    options.model.view = this;
+    Backbone.View.prototype.constructor.call(this, options);
   },
 
   initialize: function() {
     this.listenTo(this.model, 'change', this.render);
     this.listenTo(this.model, 'destroy', this.remove);
-    this.listenTo(this.model.contacts, 'remove', this.render)
-    this.listenTo(this.model.contacts, 'add', this.render) 
+    this.listenTo(this.model.contacts, 'all', this.render)
   },
   
 
@@ -172,6 +206,40 @@ var GroupView = Backbone.View.extend({
 
 });
 
+_.extend(Backbone.Validation.callbacks, {
+  valid: function(view, attr, selector) {
+
+  },
+  invalid: function(view, attr, error, selector) {
+    view.$('.' + attr).qtip({
+      content: error,
+      position: {
+        corner: {
+          target: 'topRight',
+          tooltip: 'bottomLeft'
+        }
+      },
+      style: {
+        name: 'cream',
+        border: {
+          width: 3,
+          radius: 8
+        },
+        tip: true
+      },
+      show: {
+        when: false,
+        ready: true,
+      },
+      hide: {
+        when: {
+          event: 'unfocus',
+        }          
+      }
+    });
+  }
+});
+
 var AddView = Backbone.View.extend({
   
   el: $('.contact_form'),
@@ -186,12 +254,21 @@ var AddView = Backbone.View.extend({
 
   initialize: function () {
     this.$('.form').html(this.template(this.model.toJSON())).hide();
+    this.isShow = false;
+    Backbone.Validation.bind(this);
+  },
+
+  render: function() {
+    //this.$('.form').html(this.template(this.model.toJSON()));
+    
+    return this;
   },
 
   showForm: function(e) {
     e.preventDefault();
 
     this.clearForm();
+    this.isShow = true;
     this.$('.form').show('fast');
     this.$('.show').hide('fast');
   },
@@ -199,6 +276,7 @@ var AddView = Backbone.View.extend({
   hideForm: function(e) {
     e.preventDefault();
 
+    this.isShow = false;
     this.$('.form').hide('fast');
     this.$('.show').show('fast');
   },
@@ -207,8 +285,6 @@ var AddView = Backbone.View.extend({
     this.$('input:not(:radio)').each(function (i, el) {
       $(el).val('');
     });
-        
-    this.$('input').removeClass('warning');
   },
 
   addContact: function(e) {
@@ -216,20 +292,22 @@ var AddView = Backbone.View.extend({
 
     var data = this.$('form').serializeObject();
     
-    var group = groups.where({ groupname : data.group });
-    if (group.length == 0) {
-      group = groups.create( { groupname : data.group } );
-    } else {
-      group = group[0];
-    }
-    group.contacts.create( data );
+    if (this.model.set(data, { validate : true })) {
+      var group = groups.where({ groupname : data.group });
+      if (group.length == 0) {
+        group = groups.create( { groupname : data.group } );
+      } else {
+        group = group[0];
+      }
+      group.contacts.create( data );
 
-    this.clearForm();
-    this.$('.form').hide('fast');
-    this.$('.show').show('fast');
+      this.clearForm();
+      this.$('.form').hide('fast');
+      this.$('.show').show('fast');
 
-    if (appView.selectedGroup && appView.selectedGroup.model == group) {
-      appView.renderGroup(group);
+      if (appView.selectedGroup && appView.selectedGroup.model == group) {
+        appView.renderGroup(group);
+      }
     }
   }
 
@@ -280,7 +358,7 @@ var AppView = Backbone.View.extend({
     groups.fetch();
     groups.fetchAllContacts();
 
-    this.contact_list = $('.contact_list ul');
+    this.contact_list = this.$('.contact_list ul');
   },
 
 
@@ -305,9 +383,30 @@ var AppView = Backbone.View.extend({
 
 });
 
+var AppRouter = Backbone.Router.extend({
+
+  routes: {
+    'group/:groupname': 'hashgroup'
+  },
+
+  initialize: function() {
+
+  }
+
+});
 
 var groups = new Groups();
 var appView = new AppView();
+var appRouter = new AppRouter();
+
+appRouter.on('route:hashgroup', function(groupname) {
+  var g = groups.where({ groupname : groupname });
+  if (g.length != 0) {
+    g[0].view.setFocus();
+  }
+})
+
+Backbone.history.start();
 
 });
 

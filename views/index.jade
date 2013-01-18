@@ -29,7 +29,7 @@ html
         .span2
           img.photo(src!='<%- photo %>', alt='photo')
           label.radio.span2
-            input(type='radio', value='male', name='gender', checked='true')
+            input(type='radio', value='male', name='gender', checked=true)
             | Male
           label.radio.span2
             input(type='radio', value='female', name='gender')
@@ -39,7 +39,7 @@ html
           input.firstname.span2(type='text', name='firstname', placeholder='Firstname', value!='<%- firstname %>')
           input.lastname.span2(type='text', name='lastname', placeholder='Lastname', value!='<%- lastname %>')
           input.phone.span4(type='text', name='phone', placeholder='Phone', value!='<%- phone %>')
-          input.email.span4(type='text', name='email', placeholder='Email', value!='<%- lastname %>')
+          input.email.span4(type='text', name='email', placeholder='Email', value!='<%- email %>')
           input.address.span4(type='text', name='address', placeholder='Address', value!='<%- address %>')
           input.group.span4(type='text', name='group', placeholder='Group', value!='<%- group %>')  
 
@@ -48,7 +48,7 @@ html
           a.btn.btn-inverse.span2.cancel(href='#') Cancel
       
     script#group_template(type='text/template')
-      a.focus(href='#')
+      a.focus(href!='#group/<%- groupname %>')
         span <%- groupname %>
         span.right (<%- contactCount %>)
       i.delete.icon-trash
@@ -71,11 +71,11 @@ html
           ul
      
     script(type='text/javascript', src='/javascripts/libs/jquery-1.8.2.min.js')
-    //script(type='text/javascript', src='/javascripts/libs/jquery.qtip-1.0.0-rc3.min.js')
+    script(type='text/javascript', src='/javascripts/libs/jquery.qtip-1.0.0-rc3.min.js')
 
     script(type='text/javascript', src='/javascripts/libs/underscore.js')
     script(type='text/javascript', src='/javascripts/libs/backbone.js')
-    script(type='text/javascript', src='/javascripts/libs/backbone-validation-min.js')
+    script(type='text/javascript', src='/javascripts/libs/backbone-validation.js')
     script(type='text/javascript', src='/javascripts/libs/backbone-localstorage.js')
     script(type='text/javascript', src='/javascripts/models/contact.js')
     //script(type='text/javascript', src='/javascripts/collections/contacts.js')
