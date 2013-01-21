@@ -38,11 +38,6 @@ function errorHandler(err, req, res, next) {
   res.render('error', { error : err })
 }
 
-app.configure('test', function(){
-  app.set('db-uri', 'mongodb://localhost/contactlist-test');
-  app.use(express.errorHandler({ dumpExceptions: true }));
-});
-
 app.configure('development', function(){
   app.set('db-uri', 'mongodb://localhost/contactlist-development');
   app.use(express.errorHandler({ dumpExceptions: true }));
@@ -82,33 +77,39 @@ app.get('/contacts', function(req, res) {
 
 app.get('/contacts/:id', function(req, res) {
   Contact.find({ _id: req.params.id }, function(err, contact) {
-    res.json(contact.toObject());
+    res.json(contact);
   });
 })
 
-app.post('/contacts', function(req, res) {
-  var contact = new Contact({
-    firstname: req.firstname,
-    lastname: req.lastname,
-    gender: req.gender,
-    phone: req.phone,
-    address: req.address,
-    photo: req.photo,
-    group: req.group
-  });
+app.post('/contacts', function(req, res, next) {
 
-  contact.save(function(err, contact) {
-    if (err) {
-      next(err);
-    } else {
-      switch (req.params.format) {
-        default:
-        case 'json':
-          res.send(contact.toObejct());
-          break;
-      }
+  var group = Group.find({ groupname : req.body.group }, function(err, group) {
+
+    if (group.length == 0) {
+      group = new Group({
+        groupname: req.body.groupname
+      });
     }
-  });
+
+    var contact = new Contact({
+      firstname: req.body.firstname,
+      lastname: req.body.lastname,
+      gender: req.body.gender,
+      phone: req.body.phone,
+      email: req.body.email,
+      address: req.body.address,
+      photo: req.body.photo,
+      group: group.id
+    });
+
+    contact.save(function(err, contact) {
+      if (err) {
+        next(err);
+      } else {
+        res.json(contact);
+      }
+    });    
+  })
 });
 
 app.put('/contacts/:id', function(req, res) {
@@ -128,7 +129,7 @@ app.put('/contacts/:id', function(req, res) {
 
 app.del('/contacts/:id', function(req, res) {
   contact.findByIdAndUpdate(req.params.id, function(err, contact) {
-    if (err) next(err);
+    if (err) throw err;
   });
 })
 
