@@ -60,31 +60,33 @@ models.defineModels(mongoose, function() {
 
 app.get('/', routes.index);
 
-app.post('groups/', function(req, res) {
+app.post('/groups', function(req, res) {
 
 });
 
-app.get('groups/:id.:format', function(req, res) {
+app.get('/groups/:id', function(req, res) {
 
 });
 
-app.get('/contacts/', function(req, res) {
+app.get('/contacts', function(req, res) {
   if (req.query.groupid !== undefined) {
     Contact.find({ group: req.query.groupid }, function(err, contact) {
-      res.json(contact.toObject());
+      res.json(contact);
     })
   } else {
-
+    Contact.find({}, function(err, contact) {
+      res.json(contact);
+    })
   }
 })
 
-app.get('contacts/:id', function(req, res) {
+app.get('/contacts/:id', function(req, res) {
   Contact.find({ _id: req.params.id }, function(err, contact) {
     res.json(contact.toObject());
   });
 })
 
-app.post('/contacts.:format', function(req, res) {
+app.post('/contacts', function(req, res) {
   var contact = new Contact({
     firstname: req.firstname,
     lastname: req.lastname,
@@ -109,7 +111,7 @@ app.post('/contacts.:format', function(req, res) {
   });
 });
 
-app.put('contacts/:id.:format', function(req, res) {
+app.put('/contacts/:id', function(req, res) {
   contact.findByIdAndUpdate(req.params.id, {
     firstname: req.firstname,
     lastname: req.lastname,
@@ -124,13 +126,13 @@ app.put('contacts/:id.:format', function(req, res) {
 
 })
 
-app.del('contacts/:id.:format', function(req, res) {
+app.del('/contacts/:id', function(req, res) {
   contact.findByIdAndUpdate(req.params.id, function(err, contact) {
     if (err) next(err);
   });
 })
 
-app.post('/upload_photo', function(req, res) {
+app.post('/photo', function(req, res) {
   var new_name = (function() {
     var formal_name = req.files.photo.name;
     var e_name = formal_name.substring(formal_name.lastIndexOf('.'), formal_name.length);
