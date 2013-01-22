@@ -4,20 +4,17 @@ var app = require('../app')
   , lastContactID;
 
 describe('Contact CRUD Test', function() {
+ 
   describe('POST /contacts', function() {
     
     it('should return an error', function(done) {
       request(app)
         .post('/contacts')
-        .send({
-          firstname: 'test',
-          lastname: 'test'
-        })
+        .send({})
         .expect(500)
         .expect(/error/)
         .end(function(err, res) {
           if (err) return done(err);
-
           done();
         });
     })
@@ -40,8 +37,7 @@ describe('Contact CRUD Test', function() {
         .expect(/test/)
         .end(function(err, res) {
           if (err) return done(err);
-          lastID = res.body._id;
-          console.log(res.body)
+          lastContactID = res.body._id;
           done();
         });
     })
@@ -55,25 +51,75 @@ describe('Contact CRUD Test', function() {
         .get('/contacts/')
         .expect(200)
         .expect('Content-Type', /application\/json/)
-        .expect(/test/)
+        .expect(new RegExp(lastContactID))
         .end(function(err, res) {
           if (err) return done(err);
-          //console.log(res.body)
           done();          
         })
     })
+  })
 
-    it('should return the last inserted contact', function(done) {
+  describe('GET /contacts:id', function() {
+ 
+     it('should return an error', function(done) {
       request(app)
-        .get('/contacts/'+ lastID)
+        .get('/contacts/'+ 'wtf?')
+        .expect(500)
+        .expect('Content-Type', /application\/json/)
+        .expect(/error/, done);
+    })
+
+    it('should return the newly added contact', function(done) {
+      request(app)
+        .get('/contacts/'+ lastContactID)
         .expect(200)
         .expect('Content-Type', /application\/json/)
-        .expect(new RegExp(lastID))
+        .expect(new RegExp(lastContactID))
         .end(function(err, res) {
           if (err) return done(err);
-          //console.log(res.body)
           done();
         })
     })
+
   })
+
+  describe('PUT /contacts:id', function() {
+ 
+     it('should return an error', function(done) {
+      request(app)
+        .put('/contacts/'+ 'wtf?')
+        .send({ firstname: ''})
+        .expect(500)
+        .expect(/error/, done);
+    })
+
+    it('should return the updated contact', function(done) {
+      request(app)
+        .put('/contacts/'+ lastContactID)
+        .send({ firstname: 'wtfwtf'})
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+        .expect(/wtfwtf/, done)
+    })
+
+  })
+
+  describe('DELETE /contacts:id', function() {
+ 
+     it('should return an error', function(done) {
+      request(app)
+        .del('/contacts/'+ 'wtf?')
+        .expect(500)
+        .expect(/error/, done);
+    })
+
+    it('should return success', function(done) {
+      request(app)
+        .del('/contacts/'+ lastContactID)
+        .expect(200)
+        .expect(/success/, done);
+    })
+
+  })
+
 })

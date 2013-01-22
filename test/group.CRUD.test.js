@@ -49,7 +49,11 @@ describe('Group CRUD Test', function() {
         .get('/groups/' + 'wtf?')
         .send({ })
         .expect(500)
-        .expect(/error/, done)
+        .expect(/error/)
+        .end(function(err, res) {
+          if (err) return done(err);
+          done();
+        })
     });
 
     it('should return the list of contacts', function(done) {
@@ -88,12 +92,11 @@ describe('Group CRUD Test', function() {
     it('should return an error', function(done) {
       request(app)
         .del('/groups/' + 'wtf?')
-        .send({ })
         .expect(500)
         .expect(/error/, done)
     });
 
-    it('should return the list of contacts', function(done) {
+    it('should return success', function(done) {
       request(app)
         .del('/groups/' + lastGroupID)
         .expect(200)

@@ -8,6 +8,40 @@ exports.defineRoutes = function (mongoose, fn) {
   fn();
 }
 
+exports.create = function(req, res, next) {
+
+  var group = Group.find({ groupname : req.body.group }, function(err, group) {
+
+    if (group.length == 0) {
+      group = new Group({
+        groupname: req.body.group
+      });
+      group.contacts = new Array();
+    } else {
+      group = group[0];
+    }
+
+    var data = req.body;
+    data.group = group.id;
+    var contact = new Contact(data);
+
+    group.contacts.push(contact.id)
+    group.save(function(err, g) {
+      if (err) { 
+        next(err);
+      } else {
+        contact.save(function(err, c) {
+          if (err) {
+            next(err);
+          } else {
+            res.json(c);
+          }
+        });
+      }
+    });  
+  })
+};
+
 exports.getAll = function(req, res) {
   if (req.query.groupid !== undefined) {
     Contact.find({ group: req.query.groupid }, function(err, contact) {
@@ -20,66 +54,41 @@ exports.getAll = function(req, res) {
   }
 };
 
-exports.getById = function(req, res) {
+exports.getById = function(req, res, next) {
   Contact.findById(req.params.id, function(err, c) {
-    res.json(c);
+    if (err) {
+      next(err);
+    } else if (c) {    
+      res.json(c);
+    } else {
+       next(new Error('Contact not found!'));
+    }
   });
 };
 
-exports.create = function(req, res, next) {
+exports.updateById = function(req, res, next) {
+  var data = req.body;
 
-  var group = Group.find({ groupname : req.body.group }, function(err, group) {
-
-    if (group.length == 0) {
-      group = new Group({
-        groupname: req.body.group
-      });
-    }
-
-    var contact = new Contact({
-      firstname: req.body.firstname,
-      lastname: req.body.lastname,
-      gender: req.body.gender,
-      phone: req.body.phone,
-      email: req.body.email,
-      address: req.body.address,
-      photo: req.body.photo,
-      group: group.id
-    });
-
-    // TODO: change multiple save into atomic methods
-    group.contacts.push(contact.id)
-    group.save(function(err, g) {
-      if (err) next(err);
-    });
-    contact.save(function(err, c) {
+  Contact.findByIdAndUpdate(req.params.id, data, 
+    function(err, c) {
       if (err) {
         next(err);
-      } else {
+      } else if (c) {    
         res.json(c);
+      } else {
+         next(new Error('Contact not found!'));
       }
-    });    
-  })
+    });
 };
 
-exports.update = function(req, res) {
-  contact.findByIdAndUpdate(req.params.id, {
-    firstname: req.body.firstname,
-    lastname: req.body.lastname,
-    gender: req.body.gender,
-    phone: req.body.phone,
-    email: req.body.email,
-    address: req.body.address,
-    photo: req.body.photo,
-    group: group.id
-  }, function(err, contact) {
-    if (err) next(err);
-    res.json(contact);
-  });
-};
-
-exports.delete = function(req, res) {
-  contact.findByIdAndUpdate(req.params.id, function(err, contact) {
-    if (err) throw err;
+exports.deleteById = function(req, res, next) {
+  Contact.findByIdAndRemove(req.params.id, function(err, c) {
+    if (err) {
+      next(err);
+    } else if (c) {
+      res.send('success');
+    } else {
+      next(new Error('Contact not found!'));
+    }
   });
 };
