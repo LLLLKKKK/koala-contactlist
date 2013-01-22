@@ -2,6 +2,8 @@
 var express = require('express')
   , mongoose = require('mongoose')
   , routes = require('./routes')
+  , group = require('./routes/group')
+  , contact = require('./routes/contact')
   , http = require('http')
   , path = require('path')
   , models = require('./models')
@@ -35,7 +37,7 @@ function logErrors(err, req, res, next) {
 //TODO: write an error page and render
 function errorHandler(err, req, res, next) {
   res.status(500);
-  res.render('error', { error : err })
+  res.json({ error : err })
 }
 
 app.configure('development', function(){
@@ -55,83 +57,21 @@ models.defineModels(mongoose, function() {
 
 app.get('/', routes.index);
 
-app.post('/groups', function(req, res) {
-
+group.defineRoutes(mongoose, function() {
+  app.post('/groups', group.create);
+  app.get('/groups', group.getAll);
+  app.get('/groups/:id', group.getById);
+  app.put('/groups/:id', group.updateById);
+  app.del('/groups/:id', group.deleteById);
 });
 
-app.get('/groups/:id', function(req, res) {
-
+contact.defineRoutes(mongoose, function() {
+  app.post('/contacts', contact.create);
+  app.get('/contacts', contact.getAll);
+  app.get('/contacts/:id', contact.getById);
+  app.put('/contacts/:id', contact.updateById);
+  app.del('/contacts/:id', contact.deleteById);
 });
-
-app.get('/contacts', function(req, res) {
-  if (req.query.groupid !== undefined) {
-    Contact.find({ group: req.query.groupid }, function(err, contact) {
-      res.json(contact);
-    })
-  } else {
-    Contact.find({}, function(err, contact) {
-      res.json(contact);
-    })
-  }
-})
-
-app.get('/contacts/:id', function(req, res) {
-  Contact.find({ _id: req.params.id }, function(err, contact) {
-    res.json(contact);
-  });
-})
-
-app.post('/contacts', function(req, res, next) {
-
-  var group = Group.find({ groupname : req.body.group }, function(err, group) {
-
-    if (group.length == 0) {
-      group = new Group({
-        groupname: req.body.groupname
-      });
-    }
-
-    var contact = new Contact({
-      firstname: req.body.firstname,
-      lastname: req.body.lastname,
-      gender: req.body.gender,
-      phone: req.body.phone,
-      email: req.body.email,
-      address: req.body.address,
-      photo: req.body.photo,
-      group: group.id
-    });
-
-    contact.save(function(err, contact) {
-      if (err) {
-        next(err);
-      } else {
-        res.json(contact);
-      }
-    });    
-  })
-});
-
-app.put('/contacts/:id', function(req, res) {
-  contact.findByIdAndUpdate(req.params.id, {
-    firstname: req.firstname,
-    lastname: req.lastname,
-    gender: req.gender,
-    phone: req.phone,
-    address: req.address,
-    photo: req.photo,
-    group: req.group
-  }, function(err, contact) {
-    if (err) next(err);
-  });
-
-})
-
-app.del('/contacts/:id', function(req, res) {
-  contact.findByIdAndUpdate(req.params.id, function(err, contact) {
-    if (err) throw err;
-  });
-})
 
 app.post('/photo', function(req, res) {
   var new_name = (function() {

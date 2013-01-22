@@ -1,7 +1,4 @@
 
-var Contact
-  , Group;
-
 function defineModels(mongoose, fn) {
 
   var Schema = mongoose.Schema

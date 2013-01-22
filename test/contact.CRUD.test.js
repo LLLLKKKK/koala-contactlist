@@ -1,18 +1,9 @@
 
 var app = require('../app')
   , request = require('supertest')
-  , lastID;
+  , lastContactID;
 
-describe('Server CRUD Test', function() {
-  
-  describe('GET /', function() {
-    it('should response the home page', function(done) {
-      request(app)
-        .get('/')
-        .expect(200, done);
-    })
-  });
-
+describe('Contact CRUD Test', function() {
   describe('POST /contacts', function() {
     
     it('should return an error', function(done) {
@@ -80,9 +71,9 @@ describe('Server CRUD Test', function() {
         .expect(new RegExp(lastID))
         .end(function(err, res) {
           if (err) return done(err);
-          console.log(res.body)
+          //console.log(res.body)
           done();
         })
     })
   })
-});
+})
