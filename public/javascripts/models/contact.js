@@ -65,6 +65,7 @@ var Contacts = Backbone.Collection.extend({
   url: function() {
     return '/contacts?groupid=' + this.group.get('_id');
   }
+
 });
 
 var Group = Backbone.Model.extend({
@@ -392,7 +393,12 @@ var AppView = Backbone.View.extend({
 
   renderGroup: function(group) {
     this.contact_list.html('');
-    group.contacts.each(this.addOneContact, this);
+    
+    var groupname = group.get('groupname');
+    group.contacts.each(function(g, key, list){
+      g.set('groupname', groupname);
+      this.addOneContact(g);
+    }, this);
   },
 
   addOneGroup: function(group) {

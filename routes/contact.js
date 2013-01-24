@@ -118,6 +118,8 @@ exports.updateById = function(req, res, next) {
 
   }
 */
+  delete data._id;
+  console.log(data);
   Contact.findByIdAndUpdate(req.params.id, data, 
     function(err, c) {
       if (err) {
@@ -125,7 +127,7 @@ exports.updateById = function(req, res, next) {
       } else if (c) {    
         res.json(c);
       } else {
-         next(new Error('Contact not found!'));
+        next(new Error('Contact not found!'));
       }
     });
 };
