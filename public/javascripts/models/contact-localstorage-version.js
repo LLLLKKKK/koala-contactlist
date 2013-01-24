@@ -3,12 +3,6 @@ $(function(){
 
 var Contact = Backbone.Model.extend({
 
-  idAttribute: '_id',
-
-  url: function() {
-    return this.get('_id') ? '/contacts/' + this.get('_id') : '/contacts'
-  },
-
   defaults: {
     firstname:"",
     lastname: "",
@@ -16,7 +10,7 @@ var Contact = Backbone.Model.extend({
     gender: "",
     address: "",
     email: "",
-    groupname: "",
+    group: "",
     photo:"images/dummy.png"
   },
 
@@ -50,7 +44,7 @@ var Contact = Backbone.Model.extend({
       required: true,
       msg: 'Please enter the contact\'s address',
     },
-    groupname: {
+    group: {
       required: true,
       msg: 'Please give the contact a group',
     }
@@ -61,10 +55,16 @@ var Contact = Backbone.Model.extend({
 var Contacts = Backbone.Collection.extend({
   
   model: Contact,
+  
+  constructor: function(attributes, options){
+    this.localStorage = new Backbone.LocalStorage(options.groupname + "_contacts_storage");
+    Backbone.Collection.prototype.constructor.call(this, attributes);
+  },
 
-  url: function() {
-    return '/contacts?groupid=' + this.group.get('_id');
+  initialize: function() {
+  
   }
+  
 });
 
 var Group = Backbone.Model.extend({
@@ -73,25 +73,19 @@ var Group = Backbone.Model.extend({
     groupname: "",
   },
 
-  initialize: function() {
-    this.contacts = new Contacts();
+  events : {
+
+  },
+
+  constructor: function(attributes, options) {
+    this.contacts = new Contacts(undefined, { groupname : attributes.groupname })
     this.contacts.group = this;
+
+    Backbone.Model.prototype.constructor.call(this, attributes);
   },
 
-  url: function() {
-    return this.get('_id') ? '/groups/' + this.get('_id') : '/groups';
-  },
-
-  parse: function(response) {
-    for (var i = 0; i < response.length; i++) {
-      response[i]._contacts = response[i].contacts;
-      delete response[i].contacts;
-    }
-    return response;
-  },
-
-  fetchContacts: function(options) {
-    this.contacts.fetch(options);
+  initialize: function() {
+    
   }
 
 });
@@ -100,14 +94,16 @@ var Groups = Backbone.Collection.extend({
   
   model: Group,
 
-  url: '/groups',
+  localStorage: new Backbone.LocalStorage("groups_storage"),
 
-  parse: function(response) {
-    for (var i = 0; i < response.length; i++) {
-      response[i]._contacts = response[i].contacts;
+  initialize: function() {
+    
+  },
 
-    }
-    return response;
+  fetchAllContacts: function(){
+    this.each(function(g){
+      g.contacts.fetch();
+    });
   }
 
 });
@@ -186,7 +182,7 @@ var GroupView = Backbone.View.extend({
 
   render: function() {
     var j = this.model.toJSON();
-    j['contactCount'] = this.model.get('_contacts').length;
+    j['contactCount'] = this.model.contacts.length;
     this.$el.html(this.template(j));
     return this;
   },
@@ -206,12 +202,7 @@ var GroupView = Backbone.View.extend({
       this.$el.addClass('active');
     }
 
-    var t = this;
-    this.model.fetchContacts({ 
-      success: function() {
-        appView.renderGroup(t.model)
-      }
-    });
+    appView.renderGroup(this.model);
   }
 
 
@@ -298,9 +289,9 @@ var AddView = Backbone.View.extend({
     var data = this.$('form').serializeObject();
     
     if (this.model.set(data, { validate : true })) {
-      var group = groups.where({ groupname : data.groupname });
+      var group = groups.where({ groupname : data.group });
       if (group.length == 0) {
-        group = groups.create( { groupname : data.groupname } );
+        group = groups.create( { groupname : data.group } );
       } else {
         group = group[0];
       }
@@ -377,10 +368,9 @@ var AppView = Backbone.View.extend({
 
     _.bindAll(this);
 
-    groups.fetch({ success: function() {
-      //success callback 
-    }});
-    
+    groups.fetch();
+    groups.fetchAllContacts();
+
     this.contact_list = this.$('.contact_list ul');
   },
 

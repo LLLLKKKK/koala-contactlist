@@ -9,27 +9,25 @@ exports.defineRoutes = function (mongoose, fn) {
 }
 
 exports.create = function(req, res, next) {
-
-  var group = Group.find({ groupname : req.body.group }, function(err, group) {
-
+  var data = req.body;
+  var contact = new Contact(data);
+  var group = Group.find({ groupname : data.groupname }, function(err, group) {
+    
     if (group.length == 0) {
       group = new Group({
-        groupname: req.body.group
+        groupname: data.groupname,
+        contacts: [ contact.id ]
       });
-      group.contacts = new Array();
     } else {
       group = group[0];
+      group.contacts.push(contact.id);
     }
-
-    var data = req.body;
-    data.group = group.id;
-    var contact = new Contact(data);
-
-    group.contacts.push(contact.id)
+    
     group.save(function(err, g) {
       if (err) { 
         next(err);
       } else {
+        contact.group = g.id;
         contact.save(function(err, c) {
           if (err) {
             next(err);
@@ -61,14 +59,65 @@ exports.getById = function(req, res, next) {
     } else if (c) {    
       res.json(c);
     } else {
-       next(new Error('Contact not found!'));
+      next(new Error('Contact not found!'));
     }
   });
 };
 
 exports.updateById = function(req, res, next) {
+  
   var data = req.body;
+/*
+  Contact.findById(req.params.id, function(err, c) {
+    if (c) {
+      if (data.groupname) {
+        Group.find({ groupname: data.groupname }, function(err, g) {
+          if (g) {
+            if (g.groupname != data.groupname) {    // group changed
+              g.contacts.push(c);
+              g.save(function(err, g)) 
+            }
+          } else {    // no coresponding group found
+            group = new Group({
+              groupname: data.groupname
+            });
+            group.contacts = new Array();
+            
+            Contact.findById(req.params.id, function(err, c))
 
+            group.contacts.push()
+            group.save(function(err, g) {
+              if (err) { 
+                next(err);
+              } else {
+                contact.save(function(err, c) {
+                  if (err) {
+                    next(err);
+                  } else {
+                    data.group
+                  }
+                });
+              }
+            });
+          }
+        });
+      }
+      c.save(function(err, c) {
+        if (err) {
+          next(err);
+        } else {
+          res.json(c);
+        }
+      })
+    } else {
+      next(new Error('Contact not found!'));
+    }
+  });
+
+  if (data.groupname) {
+
+  }
+*/
   Contact.findByIdAndUpdate(req.params.id, data, 
     function(err, c) {
       if (err) {

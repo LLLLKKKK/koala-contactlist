@@ -4,7 +4,6 @@ var express = require('express')
   , routes = require('./routes')
   , group = require('./routes/group')
   , contact = require('./routes/contact')
-  , http = require('http')
   , path = require('path')
   , models = require('./models')
   , Contact
@@ -107,7 +106,7 @@ app.post('/photo', function(req, res) {
 });
 
 
-http.createServer(app).listen(app.get('port'), function(){
+app.listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
 });
 

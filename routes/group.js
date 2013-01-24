@@ -9,7 +9,7 @@ exports.defineRoutes = function (mongoose, fn) {
 
 exports.create =  function(req, res, next) {
   var group = new Group({
-    groupname: req.body.group
+    groupname: req.body.groupname
   });
   group.save(function(err, g) {
     if (err) { 
@@ -37,7 +37,7 @@ exports.getById = function(req, res, next) {
 };
 
 exports.updateById = function(req, res, next) {
-  Group.findByIdAndUpdate(req.params.id, { groupname: req.body.group }, function(err, g) {
+  Group.findByIdAndUpdate(req.params.id, { groupname: req.body.groupname }, function(err, g) {
     if (g) {
       res.json(g);
     } else {

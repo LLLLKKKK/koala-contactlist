@@ -1,7 +1,8 @@
 
 var app = require('../app')
   , request = require('supertest')
-  , lastContactID;
+  , lastContactID
+  , lastGroupID;
 
 describe('Contact CRUD Test', function() {
  
@@ -29,7 +30,7 @@ describe('Contact CRUD Test', function() {
           photo: 'photo',
           phone: '123455',
           email: 'adsf@sf.sdf',
-          group: 'asdfasdf',
+          groupname: 'asdfasdf',
           address: 'address'
         })
         .expect(200)
@@ -38,6 +39,7 @@ describe('Contact CRUD Test', function() {
         .end(function(err, res) {
           if (err) return done(err);
           lastContactID = res.body._id;
+          lastGroupID = res.body.group;
           done();
         });
     })
@@ -48,7 +50,7 @@ describe('Contact CRUD Test', function() {
     
     it('should return the list of contacts', function(done) {
       request(app)
-        .get('/contacts/')
+        .get('/contacts')
         .expect(200)
         .expect('Content-Type', /application\/json/)
         .expect(new RegExp(lastContactID))
@@ -59,7 +61,22 @@ describe('Contact CRUD Test', function() {
     })
   })
 
-  describe('GET /contacts:id', function() {
+  describe('GET /contacts?groupid=', function() {
+    
+    it('should return the list of contacts', function(done) {
+      request(app)
+        .get('/contacts?groupid=' + lastGroupID)
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+        .expect(new RegExp(lastContactID))
+        .end(function(err, res) {
+          if (err) return done(err);
+          done();          
+        })
+    })
+  })
+
+  describe('GET /contacts/:id', function() {
  
      it('should return an error', function(done) {
       request(app)
