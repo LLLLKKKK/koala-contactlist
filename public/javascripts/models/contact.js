@@ -255,7 +255,8 @@ var AddView = Backbone.View.extend({
     "click a.ok": "addContact",
     "click a.cancel": "hideForm",
     "click a.show": "showForm",
-    'click img.photo' : 'uploadPhoto'
+    'click img.photo' : 'openDialog',
+    'change input.upload-photo' : 'uploadPhoto'
   },
 
   initialize: function () {
@@ -317,46 +318,54 @@ var AddView = Backbone.View.extend({
     }
   },
   
+  openDialog: function(e) {
+    this.$('input[type=file]').click();
+  },
+
   uploadPhoto: function(ev) {
-    if (this.$('.upload_photo').val() != "") {
+    if (this.$('.upload-photo').val() != "") {
 
       formdata = new FormData();
       reader = new FileReader();
-      file = this.$('.upload_photo').get(0).files[0];
+      file = this.$('.upload-photo').get(0).files[0];
       reader.readAsDataURL(file);
-      formdata.append("file", file);
+      formdata.append("photo", file);
 
+      var t = this;
       $.ajax({
         type: "POST",
-        url: "/upload_photo",
+        url: "/photo",
         processData: false,
         contentType: false,
-        data: formdata
-      }).done(function(msg) {
-        if (msg != 'success') {
-          this.$('img.photo').qtip({
-            content: error,
-            position: {
-              corner: {
-                target: 'topRight',
-                tooltip: 'bottomLeft'
+        data: formdata,
+        statusCode: {
+          200: function(msg) {
+            t.$('img.photo').attr('src', msg);
+            t.$('input.photo').val(msg);            
+          },
+          500: function(msg) {
+            t.$('img.photo').qtip({
+              content: 'Invalid photo',
+              position: {
+                corner: {
+                  target: 'topRight',
+                  tooltip: 'bottomLeft'
+                }
+              },
+              style: 'mstyle',
+              show: {
+                when: false,
+                ready: true,
+              },
+              hide: {
+                when: {
+                  event: 'unfocus',
+                }          
               }
-            },
-            style: 'mstyle',
-            show: {
-              when: false,
-              ready: true,
-            },
-            hide: {
-              when: {
-                event: 'unfocus',
-              }          
-            }
-          });
-        } else {
-          this.$('img.photo').attr('src', msg);
+            });
+          }
         }
-      }); 
+      });
     }
   }
 

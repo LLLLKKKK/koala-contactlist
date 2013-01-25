@@ -18,7 +18,7 @@ app.configure(function(){
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
   app.set('image types', ['image/png', 'image/gif', 'image/pjpeg', 'image/jpeg']);
-  app.set('image size', 1024);
+  app.set('image size', 1024 * 500);
 
   app.use(express.favicon());
   app.use(express.logger('dev'));

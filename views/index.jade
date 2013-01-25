@@ -25,17 +25,19 @@ html
           span.span4 Group: <%- groupname %>
 
     script#edit_template(type='text/template')
-      form.upload_photo(action='/upload_photo', method='post', enctype='multipart/form-data')
-        .span2
-          img.photo(src!='<%- photo %>', alt='photo')
-          label.radio.span2
-            input(type='radio', value='male', name='gender', checked=true)
-            | Male
-          label.radio.span2
-            input(type='radio', value='female', name='gender')
-            | Female
-        .span5
-          input.upload_photo.hidden(type='file', name='photo')
+      .span2
+        form(action='/photo', method='post', enctype='multipart/form-data')
+          input.upload-photo.hidden(type='file', name='photo')
+        img.photo(src!='<%- photo %>', alt='photo')
+        label.radio.span2
+          input(type='radio', value='male', name='gender', checked=true)
+          | Male
+        label.radio.span2
+          input(type='radio', value='female', name='gender')
+          | Female
+      .span5
+        form(action='/contacts', method='post')
+          input.photo(type='hidden', name='photo')
           input.firstname.span2(type='text', name='firstname', placeholder='Firstname', value!='<%- firstname %>')
           input.lastname.span2(type='text', name='lastname', placeholder='Lastname', value!='<%- lastname %>')
           input.phone.span4(type='text', name='phone', placeholder='Phone', value!='<%- phone %>')
@@ -43,9 +45,9 @@ html
           input.address.span4(type='text', name='address', placeholder='Address', value!='<%- address %>')
           input.group.span4(type='text', name='groupname', placeholder='Group', value!='<%- groupname %>')  
 
-        .actions.to-right
-          a.btn.span2.ok(href='#') OK
-          a.btn.btn-inverse.span2.cancel(href='#') Cancel
+      .actions.to-right
+        a.btn.span2.ok(href='#') OK
+        a.btn.btn-inverse.span2.cancel(href='#') Cancel
       
     script#group_template(type='text/template')
       a.focus(href!='#group/<%- groupname %>')
